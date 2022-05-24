@@ -1,4 +1,4 @@
-from utils import detect, convert_rightbox, get_areas
+from orientation.utils import detect, convert_rightbox, get_areas
 import cv2
 import dlib
 import numpy as np
