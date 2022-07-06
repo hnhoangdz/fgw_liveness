@@ -9,6 +9,22 @@ from scipy.spatial import distance as dist
 import matplotlib.pyplot as plt
 from eye_blink.utils import eye_aspect_ratio
 
+def eye_landmarks_to_bbox(eyes, padding=10):
+    p0, p1, p2, p3, p4, p5 = [x for x in eyes]
+    xmin = p0[0]
+    ymin = min(p1[1], p2[1])
+    xmax = p3[0]
+    ymax = max(p4[1], p5[1])
+    return xmin - padding, ymin - padding, xmax + padding, ymax + padding
+
+def eye_aspect_ratio(eyes):
+    A = dist.euclidean(eyes[1],eyes[5])
+    B = dist.euclidean(eyes[2],eyes[4])
+    C = dist.euclidean(eyes[0],eyes[3])
+    ear = (A + B) / (2.0 * C)
+    return ear
+
+
 class EyeBlink(object):
     def __init__(self, path_landmarks, eye_threshold=0.2, counter_consecutive=5):
         self.eye_threshold = eye_threshold
@@ -38,25 +54,27 @@ class EyeBlink(object):
         left_eye = facial_points[lStart:lEnd]
         right_eye = facial_points[rStart:rEnd]
         for (i, (x, y)) in enumerate(left_eye):
-                    cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
-                    cv2.putText(frame, str(i + 1), (x - 10, y - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+            cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
+            cv2.putText(frame, str(i + 1), (x - 10, y - 10),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+                    
         for (i, (x, y)) in enumerate(right_eye):
             cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
             cv2.putText(frame, str(i + 1), (x - 10, y - 10),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+            
         # Eye aspect ratio
         left_ear = eye_aspect_ratio(left_eye)
-        
         right_ear = eye_aspect_ratio(right_eye)
         eye_ear = (left_ear + right_ear)/2.0
-        
+        print('left ear: ', left_ear)
+        print('right ear: ', right_ear)
+        print('=========================')
         # Check eye blink
         if left_ear < self.eye_threshold:
             COUNTER += 1
-            print('left ear: ', left_ear)
         else:
-            print('counter: ', COUNTER)
+            # print('counter: ', COUNTER)
             if COUNTER >= self.counter_consecutive:
                 TOTAL += 1
             COUNTER = 0
@@ -118,7 +136,7 @@ if __name__ == '__main__':
                 cv2.rectangle(frame, (bX, bY), (bX + bW, bY + bH),
                     (0, 255, 0), 1)
                 
-                COUNTER, TOTAL = eye_blink.detect_eye_blink(gray, rect, COUNTER, TOTAL)
+                COUNTER, TOTAL = eye_blink.detect_eye_blink(frame, gray, rect, COUNTER, TOTAL)
                 cv2.putText(frame, 'Blink Left: ' + str(TOTAL), (7, 140), font, 1, (0, 255, 0), 3, cv2.LINE_AA)
             result.write(frame)
             # show the frame

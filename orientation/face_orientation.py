@@ -10,7 +10,7 @@ class FaceOrientation(object):
         self.face_orientation_path = face_orientation_path
         
     def detect_orientation(self, gray):
-        # Init instance Face Orientation
+        # Init object Face Orientation
         face_orientation_obj = cv2.CascadeClassifier(self.face_orientation_path)
         
         # Left side detect

@@ -3,10 +3,12 @@ import dlib
 import numpy as np
 from imutils import face_utils
 from cfg import *
+from facenet_pytorch import MTCNN
+import torch
 
-def detect_face(gray, type='dlib'):
+def detect_face(frame, type='dlib'):
     """Face detection
-        using: dlib or haar cascade
+        using: dlib or haar cascade or mtcnn Pytorch
     Args:
         gray (numpyarray): gray image
         type (str, optional): Face detector type. Defaults to 'dlib'.
@@ -15,7 +17,8 @@ def detect_face(gray, type='dlib'):
         list: bounding box of face
               x, y, w, h
     """
-    assert type == 'dlib' or type == 'opencv', 'Error face detector object'
+    assert type=='dlib' or type=='opencv' or type=='mtcnn', 'Error face detector object'
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     if type == 'dlib':
         detector = dlib.get_frontal_face_detector()
         faces = detector(gray, 0)
@@ -46,6 +49,15 @@ def ioa(boxA, boxB):
     ioa_score = interArea / float(boxAArea)
     return ioa_score
 
+def default_center_box(frame_width, frame_height):
+    center_x = frame_width // 4
+    center_y = frame_height // 4
+    center_box = [center_x, center_y,
+                    center_x + center_x*2, center_y + center_y*2]
+    return center_box
+
+def calculate_fps(prev_frame_time, curr_frame_time):
+    return int(1/(curr_frame_time-prev_frame_time))
 
 if __name__ == '__main__':
     img = cv2.imread('images/1.jpg')
