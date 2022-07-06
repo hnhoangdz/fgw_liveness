@@ -1,6 +1,5 @@
-from eye_blink.eye_blink_detection import EyeBlink
-from orientation.face_orientation import FaceOrientation
-from liveness_detection import detect_liveness
+from eye_blink.eye_blink_detection import EyeBlinkDetection
+from side_face.side_face_detection import SideFaceDetection
 from utils import detect_face, ioa, default_center_box, calculate_fps
 from rules import make_rules
 from imutils.video import FPS
@@ -26,6 +25,7 @@ def get_args():
 
     ap.add_argument("-tc", "--threshold_center", type=float, default=0.75,
                     help="threshold center to decide tracking face or not")
+    ap.add_argument("-c", "--case", type=str, default="test case in rules")
     args = vars(ap.parse_args())
     return args
 
@@ -64,13 +64,15 @@ if __name__ == '__main__':
     tracker = get_tracker(args)
     video = get_video(args)
 
-    # Chiều rộng, chiều dài của frame
+    # Width, height frame
     frame_width = int(video.get(3))
     frame_height = int(video.get(4))
     size = (frame_width, frame_height)
 
-    # Khởi tạo default center box (dcb)
-    # để bắt người dùng đưa khuôn mặt vào
+    eye_blink = EyeBlinkDetection(eye_blink_model, facial_landmarks)
+    side_face = SideFaceDetection(facial_landmarks)
+    
+    # Default Center Box (DCB)
     center_box = default_center_box(frame_width, frame_height)
 
     # Font
@@ -91,9 +93,7 @@ if __name__ == '__main__':
     rects = []
     face_box = None
     info = None
-
-    COUNTER, TOTAL = 0, 0
-
+    
     # time của frame trước
     prev_frame_time, curr_frame_time = 0, 0
 
@@ -138,7 +138,6 @@ if __name__ == '__main__':
                                     (7, 140), font, 1.1, (0, 0, 255), 2, cv2.LINE_AA)
                     else:
                         face_box = (x, y, w, h)
-                        cv2.imwrite('b.jpg',frame[y: y + h,x: x + w])
                         # Khởi tạo tracking
                         tracker.init(frame, face_box)
                         is_match = True
@@ -148,22 +147,29 @@ if __name__ == '__main__':
             elif face_box is not None:
                 # Cập nhật tracking
                 success, box = tracker.update(frame)
-                # Toi uu code o day
                 if success:
                     # my_rules = make_rules()
                     # print(my_rules)
                     (x_, y_, w_, h_) = [int(v) for v in box]
-                    face_bbox = dlib.rectangle(x_, y_, x_ + w_, y_ + h_)
-                    cv2.rectangle(frame, (x_, y_), (x_ + w_ + 20, y_ + h_ ),(0, 255, 0), 2)
-                    cv2.imwrite('a.jpg',frame[y_: y_ + h_,x_: x_ + w_])
-                    pass
+                    face_bbox = dlib.rectangle(x_ -10, y_ -10, x_ + w_ + 10, y_ + h_ + 10)
+                    cv2.rectangle(frame, (x_ -10, y_ -10), (x_ + w_ + 10, y_ + h_ + 10),(0, 255, 0), 2)
+                    
+                    is_blinked = eye_blink(frame, face_bbox)
+                    face_label = side_face(frame, face_bbox)
+                    if args["case"] == "eye_blink":
+                        if is_blinked:
+                            exit()
+                    elif args["case"] == "side_face":
+                        if face_label != 'frontal':
+                            print(face_label)
+                            exit()
                                     
             fps = calculate_fps(prev_frame_time, curr_frame_time)
             prev_frame_time = curr_frame_time
             
             info = [
                 ("Tracker", args["tracker"]),
-                ("FPS", "{:.2f}".format(fps)),
+                ("FPS", "{:.2f}".format(fps))
             ]
             
             # loop over the info tuples and draw them on our frame

@@ -6,6 +6,7 @@ from cfg import *
 from facenet_pytorch import MTCNN
 import torch
 
+
 def detect_face(frame, type='dlib'):
     """Face detection
         using: dlib or haar cascade or mtcnn Pytorch
@@ -17,7 +18,7 @@ def detect_face(frame, type='dlib'):
         list: bounding box of face
               x, y, w, h
     """
-    assert type=='dlib' or type=='opencv' or type=='mtcnn', 'Error face detector object'
+    assert type == 'dlib' or type == 'opencv', 'Error face detector object'
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     if type == 'dlib':
         detector = dlib.get_frontal_face_detector()
@@ -26,9 +27,10 @@ def detect_face(frame, type='dlib'):
     elif type == 'opencv':
         detector = cv2.CascadeClassifier(facial_haar)
         faces = detector.detectMultiScale3(gray, scaleFactor=1.3, minNeighbors=4, minSize=(30, 30),
-                                    flags=cv2.CASCADE_SCALE_IMAGE, outputRejectLevels = True)
+                                           flags=cv2.CASCADE_SCALE_IMAGE, outputRejectLevels=True)
         faces = faces[0]
     return faces
+
 
 def ioa(boxA, boxB):
     """Calculate intersection over original area
@@ -49,15 +51,18 @@ def ioa(boxA, boxB):
     ioa_score = interArea / float(boxAArea)
     return ioa_score
 
+
 def default_center_box(frame_width, frame_height):
     center_x = frame_width // 4
     center_y = frame_height // 4
     center_box = [center_x, center_y,
-                    center_x + center_x*2, center_y + center_y*2]
+                  center_x + center_x*2, center_y + center_y*2]
     return center_box
+
 
 def calculate_fps(prev_frame_time, curr_frame_time):
     return int(1/(curr_frame_time-prev_frame_time))
+
 
 if __name__ == '__main__':
     img = cv2.imread('images/1.jpg')
@@ -66,8 +71,8 @@ if __name__ == '__main__':
     print(faces)
     for rect in faces:
         print(rect)
-        x,y,w,h = rect[0], rect[1], rect[2], rect[3]
-        cv2.rectangle(img, (x,y), (x+w, y+h),(0, 255, 0), 1)
+        x, y, w, h = rect[0], rect[1], rect[2], rect[3]
+        cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 1)
 
     cv2.imshow('img', img)
     cv2.waitKey(0)
