@@ -8,13 +8,15 @@ from imutils import face_utils
 """
 Note: Nếu quá nhạy, thì sử dụng nhiều frame để quyết định.
 """
-
+fontScale = 2
+fontThickness = 3
 class SideFaceDetection(object):
     def __init__(self, landmarks_path):
         self.landmarks_predictor = dlib.shape_predictor(landmarks_path)
-        self.centerPoints = []
+        self.label = ''
     
     def __call__(self, frame, face_bbox, visualize=True):
+        centerPoints = []
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         landmarks = self.landmarks_predictor(gray, face_bbox)
         landmarks = face_utils.shape_to_np(landmarks)
@@ -29,22 +31,35 @@ class SideFaceDetection(object):
         leftCenterEye = get_center_eye(leftEye)
         rightCenterEye = get_center_eye(rightEye)
         
-        self.centerPoints.append(leftCenterEye)
-        self.centerPoints.append(rightCenterEye)
-        self.centerPoints.append(noseCenter)
+        centerPoints.append(leftCenterEye)
+        centerPoints.append(rightCenterEye)
+        centerPoints.append(noseCenter)
         
         angR = get_angle(rightCenterEye, leftCenterEye, noseCenter)
         angL = get_angle(leftCenterEye, rightCenterEye, noseCenter)
         
         if ((int(angR) in range(35, 70)) and (int(angL) in range(35, 71))):
-            label = 'frontal'
+            self.label = 'frontal'
         else:
             if angR < angL:
-                label = 'left'
+                self.label = 'left'
             else:
-                label = 'right'
+                self.label = 'right'
         
         if visualize:
-            get_visualize(frame, self.centerPoints, label)
+            if self.label == 'frontal':
+                color = (0, 0, 0)
+            elif self.label == 'right':
+                color = (255, 0, 0)
+            else:
+                color = (0, 0, 255)
+            cv2.putText(frame, f'pred: {self.label}', (10, 70),
+                        cv2.FONT_HERSHEY_PLAIN, fontScale, color, fontThickness, cv2.LINE_AA)
+            for (x,y) in landmarks:
+                cv2.circle(frame, (int(x), int(y)), radius=1, color=(
+                        0, 255, 125), thickness=2)
+            for (x,y) in centerPoints:
+                cv2.circle(frame, (int(x), int(y)), radius=1, color=(
+                        125, 255, 125), thickness=2)
                 
-        return label
+        return self.label

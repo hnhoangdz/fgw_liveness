@@ -6,7 +6,7 @@ from eye_blink.utils import eye_aspect_ratio, eye_landmarks_to_bbox, predict
 from PIL import Image
 
 """
-Note: Nếu quá nhạy, thì sử dụng nhiều frame để quyết định.
+Note: Nếu quá nhạy, thì sử dụng nhiều frame liên tiếp để quyết định.
 """
 
 class EyeBlinkDetection(object):
@@ -15,9 +15,9 @@ class EyeBlinkDetection(object):
         self.model_path = model_path
         self.model = Model(num_classes)
         self.model.eval()
-        self.is_blinked = False
     
     def __call__(self, frame, face_bbox, visualize=True):
+        is_blinked = False
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         landmarks = self.landmarks_predictor(gray, face_bbox)
         landmarks = face_utils.shape_to_np(landmarks)
@@ -39,14 +39,17 @@ class EyeBlinkDetection(object):
         xmin_r, ymin_r, xmax_r, ymax_r = eye_landmarks_to_bbox(rightEye)
         right_eye_bbox = Image.fromarray(gray[ymin_r:ymax_r, xmin_r:xmax_r])
         right_eye_label = predict(right_eye_bbox, self.model_path, self.model)
-        
+
         if left_eye_label == 'left_close' and right_eye_label == 'right_close':
             if EAR < 0.2:
-                print('Blinking')
-                self.is_blinked = True
+                is_blinked = True
                 
         if visualize:
             for (x,y) in landmarks:
                 cv2.circle(frame, (x,y), 1, (255,255,0), 1, cv2.LINE_4)
-        return self.is_blinked
+            cv2.rectangle(frame, (xmin_l, ymin_l), (xmax_l, ymax_l), (0,255,0), 1, cv2.LINE_4)
+            cv2.putText(frame, left_eye_label, (xmin_l, ymin_l - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)
+            cv2.rectangle(frame, (xmin_r, ymin_r), (xmax_r, ymax_r), (0,255,0), 1, cv2.LINE_4)
+            cv2.putText(frame, right_eye_label, (xmin_r, ymin_r - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)
+        return is_blinked
     

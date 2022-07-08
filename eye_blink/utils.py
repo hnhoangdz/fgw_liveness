@@ -41,7 +41,6 @@ def predict(img, model_path, model,
     img_transformed = img_transformed.unsqueeze_(0) # (1, c, h, w)
 
     outputs = model(img_transformed)
-
     predict_id = np.argmax(outputs.detach().numpy())
     predict_label = class_dict[predict_id]
     
@@ -49,4 +48,4 @@ def predict(img, model_path, model,
 
 def get_visualize(frame, landmarks):
     for (x,y) in landmarks:
-            cv2.circle(frame, (x,y), 1, (255,255,0), 1, cv2.LINE_4)
+        cv2.circle(frame, (x,y), 1, (255,255,0), 1, cv2.LINE_4)

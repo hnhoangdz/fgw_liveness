@@ -69,10 +69,10 @@ def predFaceSide(frame):
                 print('The detected face is Less then the detection threshold')
         else:
             print('No face detected in the image')
-    return bbox_, landmarks_, label
+    return landmarks_, label
 
 
-def visualize(frame, bbox, centerPoints, label):
+def visualize(frame, centerPoints, label):
 
     if label == 'frontal':
         color = (0, 0, 0)
@@ -82,7 +82,7 @@ def visualize(frame, bbox, centerPoints, label):
         color = (0, 0, 255)
     cv2.putText(frame, f'pred: {label}', (10, 70),
                 cv2.FONT_HERSHEY_PLAIN, fontScale, color, fontThickness, cv2.LINE_AA)
-
+    print(centerPoints)
     for (x, y) in centerPoints[0]:
         cv2.circle(frame, (int(x), int(y)), radius=1, color=(
             0, 125, 125), thickness=-1)

@@ -31,4 +31,3 @@ def get_visualize(frame, centerPoints, label):
     for (x,y) in centerPoints:
         cv2.circle(frame, (int(x), int(y)), radius=1, color=(
                 125, 255, 125), thickness=-1)
-
