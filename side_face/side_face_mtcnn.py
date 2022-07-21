@@ -32,7 +32,7 @@ print(f'Running on device: {device}')
 mtcnn = MTCNN(image_size=240,
               margin=0,
               min_face_size=20,
-              thresholds=[0.3, 0.4, 0.4],  # MTCNN thresholds
+              thresholds=[0.25, 0.4, 0.4],  # MTCNN thresholds
               factor=0.709,
               post_process=True,
               device=device  # If you don't have GPU

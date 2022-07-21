@@ -25,7 +25,7 @@ def get_args():
     ap.add_argument("-d", "--detector", type=str, default="dlib",
                     help="face detector module (dlib/opencv/mtcnn)")
 
-    ap.add_argument("-tc", "--threshold_center", type=float, default=0.75,
+    ap.add_argument("-tc", "--threshold_center", type=float, default=0.7,
                     help="threshold center to decide tracking face or not")
     ap.add_argument("-c", "--case", type=str, default="test case in rules")
     args = vars(ap.parse_args())
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     elif args["case"] == "side_face":
         side_face = SideFaceDetection(facial_landmarks)
     elif args["case"] == "smile_face":
-        smile_face = SmileFaceDetection(smile_face_model)
+        smile_face = SmileFaceDetection(smile_face_model_fer)
 
     # Default Center Box (DCB)
     center_box = default_center_box(frame_width, frame_height)
@@ -90,8 +90,8 @@ if __name__ == '__main__':
 
     # Write video
     result = cv2.VideoWriter('videos/test_system.avi',
-                             cv2.VideoWriter_fourcc(*'MJPG'),
-                             10, size)
+                            cv2.VideoWriter_fourcc(*'MJPG'),
+                            10, size)
 
     # Match giữa dcb và facebox
     is_match = False
@@ -158,13 +158,13 @@ if __name__ == '__main__':
                     (x_, y_, w_, h_) = [int(v) for v in box]
                     face_bbox = dlib.rectangle(x_, y_, x_ + w_, y_ + h_)
                     cv2.rectangle(frame, (x_, y_ ),
-                                  (x_ + w_, y_ + h_), (0, 255, 0), 2)
+                                (x_ + w_, y_ + h_), (0, 255, 0), 2)
 
                     if args["case"] == "eye_blink":
                         is_blinked = eye_blink(frame, face_bbox)
                         if is_blinked == True:
                             print('Blinking')
-                            exit()
+                            # exit()
                     elif args["case"] == "side_face":
                         side_label = side_face(frame, face_bbox)
                         if side_label != 'frontal':

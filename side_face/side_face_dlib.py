@@ -7,6 +7,7 @@ import math
 import requests
 import argparse
 import time
+
 print(face_utils.FACIAL_LANDMARKS_IDXS)
 
 parser = argparse.ArgumentParser('Face side detection')
