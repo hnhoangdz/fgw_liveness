@@ -4,7 +4,7 @@ import torch
 import numpy as np
 import cv2
 
-def eye_landmarks_to_bbox(eyes, padding=10):
+def eye_landmarks_to_bbox(eyes, padding=15):
     p0, p1, p2, p3, p4, p5 = [x for x in eyes]
     xmin = p0[0]
     ymin = min(p1[1], p2[1])

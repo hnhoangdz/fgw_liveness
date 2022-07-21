@@ -14,8 +14,6 @@ from cfg import *
 import time
 
 # ====================== Input parameters ======================
-
-
 def get_args():
     ap = argparse.ArgumentParser()
     ap.add_argument("-v", "--video", type=str,
@@ -34,8 +32,6 @@ def get_args():
     return args
 
 # ====================== TRACKING OBJECT =======================
-
-
 def get_tracker(args):
     (major, minor) = cv2.__version__.split(".")[:2]
     if int(major) == 3 and int(minor) < 3:
@@ -54,8 +50,6 @@ def get_tracker(args):
     return tracker
 
 # ======================= Video/Webcam =========================
-
-
 def get_video(args):
     if args.get("video", False) == None:
         video = cv2.VideoCapture(0)
@@ -138,8 +132,8 @@ if __name__ == '__main__':
                     cv2.rectangle(frame, (xmin, ymin),
                                   (xmax, ymax), (0, 255, 255), 1)
 
-                    # IOA score
-                    ioa_score = ioa(rects, center_box)
+                    # IOU score
+                    ioa_score = iou(rects, center_box)
                     ioa_list.append(ioa_score)
                     print('IOA: ', ioa_score)
 
@@ -163,14 +157,14 @@ if __name__ == '__main__':
                 if success:
                     (x_, y_, w_, h_) = [int(v) for v in box]
                     face_bbox = dlib.rectangle(x_, y_, x_ + w_, y_ + h_)
-                    cv2.rectangle(frame, (x_ - 10, y_ - 10),
-                                  (x_ + w_ + 10, y_ + h_ + 10), (0, 255, 0), 2)
+                    cv2.rectangle(frame, (x_, y_ ),
+                                  (x_ + w_, y_ + h_), (0, 255, 0), 2)
 
                     if args["case"] == "eye_blink":
                         is_blinked = eye_blink(frame, face_bbox)
                         if is_blinked == True:
                             print('Blinking')
-                            # exit()
+                            exit()
                     elif args["case"] == "side_face":
                         side_label = side_face(frame, face_bbox)
                         if side_label != 'frontal':

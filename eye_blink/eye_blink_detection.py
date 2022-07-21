@@ -39,7 +39,7 @@ class EyeBlinkDetection(object):
         xmin_r, ymin_r, xmax_r, ymax_r = eye_landmarks_to_bbox(rightEye)
         right_eye_bbox = Image.fromarray(gray[ymin_r:ymax_r, xmin_r:xmax_r])
         right_eye_label = predict(right_eye_bbox, self.model_path, self.model)
-
+        print(left_eye_label, right_eye_label)
         if left_eye_label == 'left_close' and right_eye_label == 'right_close':
             if EAR < 0.2:
                 is_blinked = True
