@@ -42,6 +42,7 @@ class EyeBlinkDetection(object):
         right_eye_label = predict(right_eye_bbox, self.model_path, self.model)
         cv2.imwrite('rightEye.jpg', gray[ymin_r:ymax_r, xmin_r:xmax_r])
         if left_eye_label == 'close' and right_eye_label == 'close':
+
             if EAR < 0.2:
                 is_blinked = True
                 

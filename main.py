@@ -166,7 +166,7 @@ if __name__ == '__main__':
                         is_blinked = eye_blink(frame, face_bbox)
                         if is_blinked == True:
                             print('Blinking')
-                            exit()
+                            # exit()
                     elif args["case"] == "side_face":
                         side_label = side_face(frame, face_bbox)
                         if side_label != 'frontal':
