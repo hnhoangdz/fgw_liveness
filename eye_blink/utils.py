@@ -3,8 +3,9 @@ from torchvision import transforms
 import torch
 import numpy as np
 import cv2
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def eye_landmarks_to_bbox(eyes, padding=15):
+def eye_landmarks_to_bbox(eyes, padding=13):
     p0, p1, p2, p3, p4, p5 = [x for x in eyes]
     xmin = p0[0]
     ymin = min(p1[1], p2[1])
@@ -28,12 +29,12 @@ def data_transform(mean=(0.5,), std=(0.5,), input_size =(24, 24)):
     return transform
 
 def load_model(model_path, model):
-    load_weights = torch.load(model_path)
-    model.load_state_dict(load_weights)
+    checkpoint = torch.load(model_path, map_location=device)
+    model.load_state_dict(checkpoint['model_state_dict'])
     return model
 
 def predict(img, model_path, model, 
-            class_dict = ['right_close','right_open','left_close','left_open']):
+            class_dict = ['close','open']):
         
     model = load_model(model_path, model)
     transform = data_transform()
@@ -41,6 +42,7 @@ def predict(img, model_path, model,
     img_transformed = img_transformed.unsqueeze_(0) # (1, c, h, w)
 
     outputs = model(img_transformed)
+    print(torch.nn.Softmax(-1)(outputs))
     predict_id = np.argmax(outputs.detach().numpy())
     predict_label = class_dict[predict_id]
     

@@ -1,10 +1,7 @@
-from scipy.misc import face
 from eye_blink.eye_blink_detection import EyeBlinkDetection
 from side_face.side_face_detection import SideFaceDetection
 from smile_face.smile_face_detection import SmileFaceDetection
 from utils import detect_face, ioa, default_center_box, calculate_fps, iou
-from rules import make_rules
-from imutils.video import FPS
 import cv2
 import matplotlib.pyplot as plt
 import dlib
@@ -73,7 +70,7 @@ if __name__ == '__main__':
     size = (frame_width, frame_height)
 
     if args["case"] == "eye_blink":
-        eye_blink = EyeBlinkDetection(eye_blink_model, facial_landmarks)
+        eye_blink = EyeBlinkDetection(eye_blink_model_zju, facial_landmarks, 2)
     elif args["case"] == "side_face":
         side_face = SideFaceDetection(facial_landmarks)
     elif args["case"] == "smile_face":
@@ -148,7 +145,12 @@ if __name__ == '__main__':
                         # Khởi tạo tracking
                         tracker.init(frame, face_box)
                         is_match = True
-
+                        
+                # vẽ default center box
+                for (xmin, ymin, xmax, ymax) in [center_box]:
+                    cv2.rectangle(frame, (xmin, ymin), (xmax, ymax),
+                                (255, 255, 0), 1)
+                    
             # Nếu đã match
             # và lấy được face bounding box
             elif face_box is not None:
@@ -164,7 +166,7 @@ if __name__ == '__main__':
                         is_blinked = eye_blink(frame, face_bbox)
                         if is_blinked == True:
                             print('Blinking')
-                            # exit()
+                            exit()
                     elif args["case"] == "side_face":
                         side_label = side_face(frame, face_bbox)
                         if side_label != 'frontal':
@@ -189,10 +191,7 @@ if __name__ == '__main__':
                 text = "{}: {}".format(k, v)
                 cv2.putText(frame, text, (10, frame_height - ((i * 20) + 20)),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-            # vẽ default center box
-            for (xmin, ymin, xmax, ymax) in [center_box]:
-                cv2.rectangle(frame, (xmin, ymin), (xmax, ymax),
-                              (255, 255, 0), 1)
+            
             cv2.imshow("Frame", frame)
             result.write(frame)
             key = cv2.waitKey(1) & 0xFF

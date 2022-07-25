@@ -16,6 +16,7 @@ class SideFaceDetection(object):
         self.label = ''
     
     def __call__(self, frame, face_bbox, visualize=True):
+        
         centerPoints = []
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         landmarks = self.landmarks_predictor(gray, face_bbox)
