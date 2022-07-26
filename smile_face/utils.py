@@ -42,6 +42,7 @@ def predict(img, model_path, model,
     probs = torch.softmax(outputs, dim=1)
     happy_prob = probs[0][1]
     predict_id = np.argmax(outputs.detach().numpy())
+    print('probablity happy: ', happy_prob)
     predict_label = class_dict[predict_id]
     # if happy_prob < 0.8 and predict_id == 1:
     #     print('not sure')

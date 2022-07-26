@@ -7,6 +7,8 @@ import math
 import requests
 import argparse
 import time
+from threading import Thread
+from queue import Queue
 
 print(face_utils.FACIAL_LANDMARKS_IDXS)
 
@@ -88,7 +90,7 @@ def visualize(frame, centerPoints, label):
                 cv2.FONT_HERSHEY_PLAIN, fontScale, color, fontThickness, cv2.LINE_AA)
     
     for (x,y) in centerPoints:
-        cv2.circle(frame, (int(x), int(y)), radius=1, color=(
+        cv2.circle(frame, (int(x), int(y)), radius=5, color=(
                 0, 255, 255), thickness=-1)
         
 cap = cv2.VideoCapture(0)

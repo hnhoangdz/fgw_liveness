@@ -11,7 +11,7 @@ Note: Nếu quá nhạy, thì sử dụng nhiều frame liên tiếp để quy�
 
 class EyeBlinkDetection(object):
     def __init__(self, model_path, landmarks_path, num_classes=4):
-        self.landmarks_predictor = dlib.shape_predictor(landmarks_path)
+        self.facial_landmarks_predictor = dlib.shape_predictor(landmarks_path)
         self.model_path = model_path
         self.model = Model(num_classes)
         self.model.eval()
@@ -19,7 +19,7 @@ class EyeBlinkDetection(object):
     def __call__(self, frame, face_bbox, visualize=True):
         is_blinked = False
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        landmarks = self.landmarks_predictor(gray, face_bbox)
+        landmarks = self.facial_landmarks_predictor(gray, face_bbox)
         landmarks = face_utils.shape_to_np(landmarks)
         
         (lStart, lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
