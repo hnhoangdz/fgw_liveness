@@ -16,34 +16,15 @@ def get_args():
     ap.add_argument("-v", "--video", type=str,
                     help="path to input video file")
 
-    ap.add_argument("-t", "--tracker", type=str, default="kcf",
-                    help="opencv object tracking type")
-
-    ap.add_argument("-d", "--detector", type=str, default="dlib",
+    ap.add_argument("-d", "--detector", type=str, default="opencv",
                     help="face detector module (dlib/opencv/mtcnn)")
 
-    ap.add_argument("-tc", "--threshold_center", type=float, default=0.7,
+    ap.add_argument("-tc", "--threshold_center", type=float, default=0.6,
                     help="threshold center to decide tracking face or not")
-    ap.add_argument("-c", "--case", type=str, default="test case in rules")
+    ap.add_argument("-c", "--case", type=str, default="eye_blink")
     args = vars(ap.parse_args())
     return args
 
-# ====================== TRACKING OBJECT =======================
-def get_tracker(args):
-    (major, minor) = cv2.__version__.split(".")[:2]
-    if int(major) == 3 and int(minor) < 3:
-        tracker = cv2.Tracker_create(args["tracker"].upper())
-    else:
-        OPENCV_OBJECT_TRACKERS = {
-            "csrt": cv2.legacy.TrackerCSRT_create,
-            "kcf": cv2.legacy.TrackerKCF_create,
-            "boosting": cv2.legacy.TrackerBoosting_create,
-            "mil": cv2.legacy.TrackerMIL_create,
-            "tld": cv2.legacy.TrackerTLD_create,
-            "medianflow": cv2.legacy.TrackerMedianFlow_create,
-            "mosse": cv2.legacy.TrackerMOSSE_create
-        }
-        tracker = OPENCV_OBJECT_TRACKERS[args["tracker"]]()
     return tracker
 
 # ======================= Video/Webcam =========================
@@ -61,7 +42,6 @@ def get_video(args):
 
 if __name__ == '__main__':
     args = get_args()
-    tracker = get_tracker(args)
     video = get_video(args)
 
     # Width, height frame
@@ -166,7 +146,7 @@ if __name__ == '__main__':
                         is_blinked = eye_blink(frame, face_bbox)
                         if is_blinked == True:
                             print('Blinking')
-                            # exit()
+                            exit()
                     elif args["case"] == "side_face":
                         side_label = side_face(frame, face_bbox)
                         if side_label != 'frontal':

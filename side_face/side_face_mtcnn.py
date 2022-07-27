@@ -84,7 +84,7 @@ def visualize(frame, centerPoints, label):
                 cv2.FONT_HERSHEY_PLAIN, fontScale, color, fontThickness, cv2.LINE_AA)
     print(centerPoints)
     for (x, y) in centerPoints[0]:
-        cv2.circle(frame, (int(x), int(y)), radius=1, color=(
+        cv2.circle(frame, (int(x), int(y)), radius=3, color=(
             0, 125, 125), thickness=-1)
 
 

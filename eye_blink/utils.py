@@ -1,3 +1,4 @@
+from email.policy import strict
 from scipy.spatial import distance as dist
 from torchvision import transforms
 import torch
@@ -5,13 +6,13 @@ import numpy as np
 import cv2
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def eye_landmarks_to_bbox(eyes, padding=13):
+def eye_landmarks_to_bbox(eyes, padding=5):
     p0, p1, p2, p3, p4, p5 = [x for x in eyes]
     xmin = p0[0]
     ymin = min(p1[1], p2[1])
     xmax = p3[0]
     ymax = max(p4[1], p5[1])
-    return xmin - padding, ymin - padding, xmax + padding, ymax + padding
+    return xmin - padding*2, ymin - padding*2, xmax + padding*2, ymax + padding*2
 
 def eye_aspect_ratio(eyes):
     A = dist.euclidean(eyes[1],eyes[5])
@@ -30,7 +31,7 @@ def data_transform(mean=(0.5,), std=(0.5,), input_size =(24, 24)):
 
 def load_model(model_path, model):
     checkpoint = torch.load(model_path, map_location=device)
-    model.load_state_dict(checkpoint['model_state_dict'])
+    model.load_state_dict(checkpoint, strict=False)
     return model
 
 def predict(img, model_path, model, 

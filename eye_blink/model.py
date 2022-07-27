@@ -1,33 +1,33 @@
 import torch.nn as nn
 
+
 class SeparableConv2d(nn.Module):
-    
-    def __init__(self, in_channels, out_channels, kernel_size=1, 
-                stride=1, padding=0, dilation=1, bias=False):
+
+    def __init__(self, in_channels, out_channels, kernel_size=1, stride=1, padding=0, dilation=1, bias=False):
         super(SeparableConv2d, self).__init__()
-        
-        self.depthwise = nn.Conv2d(in_channels, in_channels, kernel_size, stride,
-                                   padding, dilation, groups=in_channels, bias=bias)
+        self.depthwise = nn.Conv2d(in_channels, in_channels, kernel_size, stride, padding, dilation, groups=in_channels,
+                                   bias=bias)
         self.pointwise = nn.Conv2d(in_channels, out_channels, 1, 1, 0, 1, 1, bias=bias)
-        
+
     def forward(self, x):
-        out = self.depthwise(x)
-        out = self.pointwise(x)
-        return out
-    
+        x = self.depthwise(x)
+        x = self.pointwise(x)
+        return x
+
+
 class ResidualBlock(nn.Module):
-    
-    def __init__(self, in_channeld, out_channels):
+
+    def __init__(self, in_channel, out_channels):
         super(ResidualBlock, self).__init__()
 
-        self.residual_conv = nn.Conv2d(in_channels=in_channeld, out_channels=out_channels, kernel_size=1, stride=2,
+        self.residual_conv = nn.Conv2d(in_channels=in_channel, out_channels=out_channels, kernel_size=1, stride=2,
                                        bias=False)
         self.residual_bn = nn.BatchNorm2d(out_channels, momentum=0.99, eps=1e-3)
 
-        self.sepConv1 = SeparableConv2d(in_channels=in_channeld, out_channels=out_channels, kernel_size=3, bias=False,
+        self.sepConv1 = SeparableConv2d(in_channels=in_channel, out_channels=out_channels, kernel_size=3, bias=False,
                                         padding=1)
         self.bn1 = nn.BatchNorm2d(out_channels, momentum=0.99, eps=1e-3)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU()
 
         self.sepConv2 = SeparableConv2d(in_channels=out_channels, out_channels=out_channels, kernel_size=3, bias=False,
                                         padding=1)
@@ -53,15 +53,15 @@ class Model(nn.Module):
 
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=8, kernel_size=3, stride=1, bias=False)
         self.bn1 = nn.BatchNorm2d(8, affine=True, momentum=0.99, eps=1e-3)
-        self.relu1 = nn.ReLU(inplace=True)
+        self.relu1 = nn.ReLU()
         self.conv2 = nn.Conv2d(in_channels=8, out_channels=8, kernel_size=3, stride=1, bias=False)
         self.bn2 = nn.BatchNorm2d(8, momentum=0.99, eps=1e-3)
-        self.relu2 = nn.ReLU(inplace=True)
+        self.relu2 = nn.ReLU()
 
-        self.module1 = ResidualBlock(in_channeld=8, out_channels=16)
-        self.module2 = ResidualBlock(in_channeld=16, out_channels=32)
-        self.module3 = ResidualBlock(in_channeld=32, out_channels=64)
-        self.module4 = ResidualBlock(in_channeld=64, out_channels=128)
+        self.module1 = ResidualBlock(in_channel=8, out_channels=16)
+        self.module2 = ResidualBlock(in_channel=16, out_channels=32)
+        self.module3 = ResidualBlock(in_channel=32, out_channels=64)
+        self.module4 = ResidualBlock(in_channel=64, out_channels=128)
 
         self.last_conv = nn.Conv2d(in_channels=128, out_channels=num_classes, kernel_size=3, padding=1)
         self.avgp = nn.AdaptiveAvgPool2d((1, 1))
