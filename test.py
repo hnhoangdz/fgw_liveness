@@ -16,7 +16,7 @@ def load_model(model_path, model, device):
     model.load_state_dict(load_weights, strict=False)
     return model
 
-model_path = eye_blink_model_cew_v2
+model_path = eye_blink_model_cew_v3
 model = Model(2)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model = load_model(model_path, model, device)

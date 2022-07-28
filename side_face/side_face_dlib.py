@@ -48,11 +48,13 @@ def get_angle(a, b, c):
 def predFaceSide(frame):
     
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    gray = cv2.equalizeHist(gray)
     rects = detector(gray, 0)
     label = None
     centerPoints = []
     
     for rect in rects:
+        # print(rect)
         landmarks = predictor(gray, rect)
         landmarks = face_utils.shape_to_np(landmarks)
         leftEye = landmarks[lEyeStart:lEyeEnd]
@@ -76,9 +78,9 @@ def predFaceSide(frame):
         centerPoints.append(rightCenterEye)
         centerPoints.append(noseCenter)
         
-    return centerPoints, label
+    return centerPoints, label, rects
 
-def visualize(frame, centerPoints, label):
+def visualize(frame, centerPoints, label, rects):
     
     if label == 'frontal':
         color = (0, 0, 0)
@@ -86,6 +88,10 @@ def visualize(frame, centerPoints, label):
         color = (255, 0, 0)
     else:
         color = (0, 0, 255)
+    print(rects)
+    rects = [face_utils.rect_to_bb(rect) for rect in rects]
+    (x, y, w, h) = rects[0]
+    cv2.rectangle(frame, (x,y), (x+w, y+h), (255, 255, 0), 1)
     cv2.putText(frame, f'pred: {label}', (10, 70),
                 cv2.FONT_HERSHEY_PLAIN, fontScale, color, fontThickness, cv2.LINE_AA)
     
@@ -94,7 +100,14 @@ def visualize(frame, centerPoints, label):
                 0, 255, 255), thickness=-1)
         
 cap = cv2.VideoCapture(0)
-
+# Width, height frame
+frame_width = int(cap.get(3))
+frame_height = int(cap.get(4))
+size = (frame_width, frame_height)
+# Write video
+result = cv2.VideoWriter('side_face_detection.avi',
+                        cv2.VideoWriter_fourcc(*'MJPG'),
+                        10, size)
 while True:
     _, frame = cap.read()
     frame = cv2.flip(frame, 1)
@@ -106,14 +119,15 @@ while True:
     fps = str(int(fps))
     cv2.putText(frame, f'FPS: {fps}', (10, 140), font, 1,
                 (100, 255, 0), 3, cv2.LINE_AA)
-    centerPoints, label = predFaceSide(frame)
-    visualize(frame, centerPoints, label)
-
+    centerPoints, label, rects = predFaceSide(frame)
+    if label is not None:
+        visualize(frame, centerPoints, label, rects)
+    result.write(frame)
     cv2.imshow("Output", frame)
 
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
         break
-
+result.release()
 cv2.destroyAllWindows()
 cap.release()
