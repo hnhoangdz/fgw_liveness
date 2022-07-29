@@ -10,13 +10,14 @@ Note: Nếu quá nhạy, thì sử dụng nhiều frame để quyết định.
 """
 fontScale = 2
 fontThickness = 3
+
 class SideFaceDetection(object):
-    def __init__(self, landmarks_path):
+    def __init__(self, landmarks_path, require_side):
         self.landmarks_predictor = dlib.shape_predictor(landmarks_path)
-        self.label = ''
-    
-    def __call__(self, frame, face_bbox, visualize=True):
+        self.require_side = require_side
         
+    def __call__(self, frame, face_bbox, visualize=True):
+        label = ''
         centerPoints = []
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         landmarks = self.landmarks_predictor(gray, face_bbox)
@@ -39,23 +40,23 @@ class SideFaceDetection(object):
         angR = get_angle(rightCenterEye, leftCenterEye, noseCenter)
         angL = get_angle(leftCenterEye, rightCenterEye, noseCenter)
         
-        if ((int(angR) in range(35, 70)) and (int(angL) in range(35, 71))):
-            self.label = 'frontal'
+        if ((int(angR) in range(30, 60)) and (int(angL) in range(30, 61))):
+            label = 'frontal'
         else:
             if angR < angL:
-                self.label = 'left'
+                label = 'left'
             else:
-                self.label = 'right'
+                label = 'right'
         
         if visualize:
-            if self.label == 'frontal':
+            if label == 'frontal':
                 color = (0, 0, 0)
-            elif self.label == 'right':
+            elif label == 'right':
                 color = (255, 0, 0)
             else:
                 color = (0, 0, 255)
-            cv2.putText(frame, f'pred: {self.label}', (10, 70),
-                        cv2.FONT_HERSHEY_PLAIN, fontScale, color, fontThickness, cv2.LINE_AA)
+            cv2.putText(frame, f'side: {label}', (10, 140),
+                        cv2.FONT_HERSHEY_PLAIN, fontScale, color, 1, cv2.LINE_AA)
             for (x,y) in landmarks:
                 cv2.circle(frame, (int(x), int(y)), radius=1, color=(
                         0, 255, 125), thickness=2)
@@ -63,4 +64,4 @@ class SideFaceDetection(object):
                 cv2.circle(frame, (int(x), int(y)), radius=1, color=(
                         125, 255, 125), thickness=2)
                 
-        return self.label
+        return label == self.require_side

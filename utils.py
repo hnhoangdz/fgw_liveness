@@ -7,7 +7,7 @@ from facenet_pytorch import MTCNN
 import torch
 
 
-def detect_face(frame, type='dlib'):
+def detect_face(frame, name_detector, detector):
     """Face detection
         using: dlib or haar cascade or mtcnn Pytorch
     Args:
@@ -18,18 +18,18 @@ def detect_face(frame, type='dlib'):
         list: bounding box of face
               x, y, w, h
     """
-    assert type == 'dlib' or type == 'opencv', 'Error face detector object'
+    # assert type == 'dlib' or type == 'opencv', 'Error face detector object'
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    if type == 'dlib':
-        detector = dlib.get_frontal_face_detector()
+    gray = cv2.equalizeHist(gray)
+    if name_detector == 'dlib':
         faces = detector(gray, 0)
         faces = [face_utils.rect_to_bb(face) for face in faces]
-    elif type == 'opencv':
-        detector = cv2.CascadeClassifier(facial_haar)
+        return faces
+    elif name_detector == 'opencv':
         faces = detector.detectMultiScale3(gray, scaleFactor=1.3, minNeighbors=3, minSize=(30, 30),
                                            flags=cv2.CASCADE_SCALE_IMAGE, outputRejectLevels=True)
         faces = faces[0]
-    return faces
+        return faces
 
 
 def ioa(boxA, boxB):
@@ -68,7 +68,6 @@ def default_center_box(frame_width, frame_height):
     center_box = [center_x, center_y,
                   center_x + center_x*2, center_y + center_y*2]
     return center_box
-
 
 def calculate_fps(prev_frame_time, curr_frame_time):
     return int(1/(curr_frame_time-prev_frame_time))

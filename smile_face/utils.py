@@ -60,4 +60,4 @@ def get_visualize(frame, label):
     else:
         color = (0,0,255)
         
-    cv2.putText(frame, f'emoji: {label}', (7, 70), 1, 1, color, 1)    
+    cv2.putText(frame, f'emoji: {label}', (7, 140), 1, 1, color, 1)    

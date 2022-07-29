@@ -43,12 +43,13 @@ class EyeBlinkDetection(object):
         cv2.imwrite('rightEye.jpg', gray[ymin_r:ymax_r, xmin_r:xmax_r])
         if left_eye_label == 'close' and right_eye_label == 'close':
             print('ear: ', EAR)
-            if EAR < 0.2:
+            if EAR < 0.15:
                 is_blinked = True
                 
         if visualize:
             for (x,y) in landmarks:
                 cv2.circle(frame, (x,y), 1, (255,255,0), 1, cv2.LINE_4)
+            cv2.putText(frame, str(EAR), (7, 210), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1, cv2.LINE_AA)
             cv2.rectangle(frame, (xmin_l, ymin_l), (xmax_l, ymax_l), (0,255,0), 1, cv2.LINE_4)
             cv2.putText(frame, left_eye_label, (xmin_l, ymin_l - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
             cv2.rectangle(frame, (xmin_r, ymin_r), (xmax_r, ymax_r), (0,255,0), 1, cv2.LINE_4)

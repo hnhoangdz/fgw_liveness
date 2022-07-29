@@ -12,7 +12,7 @@ def eye_landmarks_to_bbox(eyes, padding=15):
     ymin = min(p1[1], p2[1])
     xmax = p3[0]
     ymax = max(p4[1], p5[1])
-    return xmin - padding, ymin - padding, xmax + padding, ymax + padding
+    return xmin - padding+5, ymin - padding, xmax + padding+5, ymax + padding
 
 def eye_aspect_ratio(eyes):
     A = dist.euclidean(eyes[1],eyes[5])
@@ -45,6 +45,8 @@ def predict(img, model_path, model,
     outputs = model(img_transformed)
     # print(torch.nn.Softmax(-1)(outputs))
     predict_id = np.argmax(outputs.detach().numpy())
+    # if predict_id == 0:
+    #     print('prob close = ', torch.nn.Softmax(-1)(outputs)[0])
     predict_label = class_dict[predict_id]
     
     return predict_label
