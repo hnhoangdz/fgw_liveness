@@ -17,12 +17,13 @@ def get_args():
     ap.add_argument("-v", "--video", type=str,
                     help="path to input video file")
 
-    ap.add_argument("-d", "--detector", type=str, default="opencv",
+    ap.add_argument("-d", "--detector", type=str, default="dlib",
                     help="face detector module (dlib/opencv/mtcnn)")
 
     ap.add_argument("-tc", "--threshold_match", type=float, default=0.5,
                     help="threshold center to decide tracking face or not")
     ap.add_argument("-c", "--case", type=str, default="eye_blink")
+    ap.add_argument("-nr", "--num_rules", type=int, default=3)
     args = vars(ap.parse_args())
     return args
 
@@ -40,7 +41,7 @@ def get_video(args):
 
 if __name__ == '__main__':
     args = get_args()
-    rules = make_rules()
+    rules = make_rules(args["num_rules"])
     
     banks = {
         'eye_blink': EyeBlinkDetection(eye_blink_model_cew_v3, facial_landmarks, 2),
@@ -72,7 +73,7 @@ if __name__ == '__main__':
     frame_width = int(video.get(3)) # width
     frame_height = int(video.get(4)) # height
     size = (frame_width, frame_height) # size
-    result = cv2.VideoWriter('videos/test_system.avi',
+    result = cv2.VideoWriter('videos/test_system3.avi',
                             cv2.VideoWriter_fourcc(*'MJPG'),
                             10, size) # write video
     
@@ -82,6 +83,7 @@ if __name__ == '__main__':
     # prev time & curr time of frame
     prev_frame_time, curr_frame_time = 0, 0
     message = None
+    time_step = None
     
     while True:
         # start time of frame 
@@ -141,7 +143,7 @@ if __name__ == '__main__':
                     face_bbox = dlib.rectangle(x, y, x + w, y + h)
                     cv2.rectangle(frame, (x, y),
                                 (x + w, y + h), (0, 255, 0), 2)
-                    
+                                        
                     if rule_ith == 3:
                         message = 'You did good'
                         time_break = time.time()
@@ -152,15 +154,23 @@ if __name__ == '__main__':
                         # exit()
                     else:
                         # do-rule
-                        require = convert_rule2require(rules[rule_ith])
-                        cv2.putText(frame, require,
-                                    (7, 70), font, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
-                        label = banks[rules[rule_ith]](frame, face_bbox)
-                        print('label: ', label)
-                        challenge = solve_rule(rules[rule_ith], label)
-                        
-                        if challenge == 'pass':
-                            rule_ith += 1
+                        if time_step is None:
+                            require = convert_rule2require(rules[rule_ith])
+                            cv2.putText(frame, require,
+                                        (7, 70), font, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
+                            label = banks[rules[rule_ith]](frame, face_bbox)
+                            # print('label: ', label)
+                            challenge = solve_rule(rules[rule_ith], label)
+                            
+                            if challenge == 'pass':
+                                time_step = time.time()
+                            
+                        else:
+                            cv2.putText(frame, 'wait 3s', (7, 70), 1, 2, (0,255,0), 3)
+                            if time.time() - time_step > 3:
+                                print(11111111111)
+                                rule_ith += 1
+                                time_step = None
                         
                             
             # calculate fps
