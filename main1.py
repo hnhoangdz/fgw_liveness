@@ -152,6 +152,7 @@ if __name__ == '__main__':
                         # exit()
                     else:
                         # do-rule
+                        print(1)
                         require = convert_rule2require(rules[rule_ith])
                         cv2.putText(frame, require,
                                     (7, 70), font, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
