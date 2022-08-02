@@ -1,9 +1,10 @@
 import random as rd
 from itertools import permutations, combinations
 
-def make_rules():
+def make_rules(num_rules):
     rules = ['side_face_left', 'side_face_right', 'eye_blink', 'smile_face']
-    return rd.sample(rules, 3) #, signs
+    assert num_rules < len(rules), 'number of generated rules must be less than number of original rules'
+    return rd.sample(rules, num_rules) #, signs
 
 def solve_rule(question, label):
     challenge = ''

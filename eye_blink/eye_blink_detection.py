@@ -43,7 +43,7 @@ class EyeBlinkDetection(object):
         cv2.imwrite('rightEye.jpg', gray[ymin_r:ymax_r, xmin_r:xmax_r])
         if left_eye_label == 'close' and right_eye_label == 'close':
             print('ear: ', EAR)
-            if EAR < 0.15:
+            if EAR < 0.2:
                 is_blinked = True
                 
         if visualize:
