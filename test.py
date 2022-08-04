@@ -16,7 +16,7 @@ def load_model(model_path, model, device):
     model.load_state_dict(load_weights, strict=False)
     return model
 
-model_path = eye_blink_model_cew_v3
+model_path = eye_blink_model_zju_v2
 model = Model(2)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model = load_model(model_path, model, device)
@@ -48,12 +48,13 @@ def predict_img(img_path):
     
     return pred_label
 
+parent_paths = 'test_images'
 paths = ['leftEye.jpg', 'rightEye.jpg', 'close.png', 'ct0001.jpg', 'ct0004.jpg',\
          'closed_eye.jpg', 'close_right.png', 'open_left.png', 'open_right.png','open_left_g.png', 'open_right_g.png']
 
 for img_path in paths:
-    print('img_path: ', img_path) 
-    label = predict_img(img_path)
+    print('img_path: ', os.path.join(parent_paths,img_path)) 
+    label = predict_img(os.path.join(parent_paths,img_path))
     print('label: ', label)
     print('==================')
 

@@ -34,16 +34,16 @@ class EyeBlinkDetection(object):
         
         xmin_l, ymin_l, xmax_l, ymax_l = eye_landmarks_to_bbox(leftEye)
         left_eye_bbox = Image.fromarray(gray[ymin_l:ymax_l, xmin_l:xmax_l])
-        cv2.imwrite('leftEye.jpg', gray[ymin_l:ymax_l, xmin_l:xmax_l])
+        cv2.imwrite('test_images/leftEye.jpg', gray[ymin_l:ymax_l, xmin_l:xmax_l])
         left_eye_label = predict(left_eye_bbox, self.model_path, self.model)
         
         xmin_r, ymin_r, xmax_r, ymax_r = eye_landmarks_to_bbox(rightEye)
         right_eye_bbox = Image.fromarray(gray[ymin_r:ymax_r, xmin_r:xmax_r])
         right_eye_label = predict(right_eye_bbox, self.model_path, self.model)
-        cv2.imwrite('rightEye.jpg', gray[ymin_r:ymax_r, xmin_r:xmax_r])
+        cv2.imwrite('test_images/rightEye.jpg', gray[ymin_r:ymax_r, xmin_r:xmax_r])
         if left_eye_label == 'close' and right_eye_label == 'close':
             print('ear: ', EAR)
-            if EAR < 0.2:
+            if EAR < 0.15:
                 is_blinked = True
                 
         if visualize:

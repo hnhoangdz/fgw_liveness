@@ -15,7 +15,6 @@ class SmileFaceDetection(object):
         
     def __call__(self, frame, face_bbox, visualize=True):
         face_bbox = frame[face_bbox.top(): face_bbox.bottom(), face_bbox.left():face_bbox.right()]
-        cv2.imwrite('a.jpg', face_bbox)
         gray = cv2.cvtColor(face_bbox, cv2.COLOR_BGR2GRAY)
         label = predict(gray, self.model_path, self.model)
         

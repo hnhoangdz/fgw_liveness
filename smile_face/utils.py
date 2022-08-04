@@ -39,19 +39,9 @@ def predict(img, model_path, model,
     img_transformed = img_transformed.unsqueeze_(0)
 
     outputs = model(img_transformed)
-    probs = torch.softmax(outputs, dim=1)
-    happy_prob = probs[0][1]
+    # probs = torch.softmax(outputs, dim=1)
     predict_id = np.argmax(outputs.detach().numpy())
-    print('probablity happy: ', happy_prob)
     predict_label = class_dict[predict_id]
-    # if happy_prob < 0.8 and predict_id == 1:
-    #     print('not sure')
-    #     predict_id = 0
-
-    # predict_label = class_dict[predict_id]
-    # if predict_label == 'happy':
-        
-    #     print(happy_prob)
     return predict_label
 
 def get_visualize(frame, label):

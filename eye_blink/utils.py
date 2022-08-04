@@ -6,13 +6,13 @@ import numpy as np
 import cv2
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def eye_landmarks_to_bbox(eyes, padding=15):
+def eye_landmarks_to_bbox(eyes, padding=6):
     p0, p1, p2, p3, p4, p5 = [x for x in eyes]
     xmin = p0[0]
     ymin = min(p1[1], p2[1])
     xmax = p3[0]
     ymax = max(p4[1], p5[1])
-    return xmin - padding+5, ymin - padding, xmax + padding+5, ymax + padding
+    return xmin - padding-2, ymin - padding, xmax + padding+2, ymax + padding
 
 def eye_aspect_ratio(eyes):
     A = dist.euclidean(eyes[1],eyes[5])

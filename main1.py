@@ -64,16 +64,15 @@ if __name__ == '__main__':
     face_box = None # face bounding box (fb)
     info = None # information to display
     n_frames = 0 # number of frames
-    challenge = 'fail' # 
-    rule_ith = 0
-    t0 = 0
+    challenge = 'fail' # pass or fail of each rule
+    rule_ith = 0 # ith-rule
     
     # init video & write
     video = get_video(args) # video object
     frame_width = int(video.get(3)) # width
     frame_height = int(video.get(4)) # height
     size = (frame_width, frame_height) # size
-    result = cv2.VideoWriter('videos/test_system3.avi',
+    result = cv2.VideoWriter('videos/test_system4.avi',
                             cv2.VideoWriter_fourcc(*'MJPG'),
                             10, size) # write video
     
@@ -96,7 +95,7 @@ if __name__ == '__main__':
         frame = cv2.flip(frame, 1)
         
         # delay 10 frames in starting
-        if n_frames > 10 and message is None:
+        if n_frames > 15 and message is None:
             
             # detect face
             rects = detect_face(frame, args["detector"], detector)
@@ -159,8 +158,8 @@ if __name__ == '__main__':
                             require = convert_rule2require(rules[rule_ith])
                             cv2.putText(frame, require,
                                         (7, 70), font, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
-                            label = banks[rules[rule_ith]](frame, face_bbox)
-                            # print('label: ', label)
+                            # label = banks[rules[rule_ith]](frame, face_bbox)
+                            label = banks["eye_blink"](frame, face_bbox)
                             challenge = solve_rule(rules[rule_ith], label)
                             
                             if challenge == 'pass':

@@ -66,7 +66,7 @@ def predFaceSide(frame):
         angR = get_angle(rightCenterEye, leftCenterEye, noseCenter)
         angL = get_angle(leftCenterEye, rightCenterEye, noseCenter)
         
-        if ((int(angR) in range(30, 60)) and (int(angL) in range(30, 61))):
+        if ((int(angR) in range(35, 58)) and (int(angL) in range(30, 59))):
             label = 'frontal'
         else:
             if angR < angL:
