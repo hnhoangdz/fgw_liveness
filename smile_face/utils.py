@@ -37,8 +37,8 @@ def predict(img, model_path, model,
     img = Image.fromarray(img)
     img_transformed = transform(img)
     img_transformed = img_transformed.unsqueeze_(0)
-
-    outputs = model(img_transformed)
+    with torch.no_grad():
+        outputs = model(img_transformed)
     # probs = torch.softmax(outputs, dim=1)
     predict_id = np.argmax(outputs.detach().numpy())
     predict_label = class_dict[predict_id]

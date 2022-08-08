@@ -41,12 +41,12 @@ def predict(img, model_path, model,
     transform = data_transform()
     img_transformed = transform(img)
     img_transformed = img_transformed.unsqueeze_(0) # (1, c, h, w)
-
-    outputs = model(img_transformed)
-    # print(torch.nn.Softmax(-1)(outputs))
+    with torch.no_grad():
+        outputs = model(img_transformed)
     predict_id = np.argmax(outputs.detach().numpy())
-    # if predict_id == 0:
-    #     print('prob close = ', torch.nn.Softmax(-1)(outputs)[0])
+    if predict_id == 0:
+        if torch.nn.Softmax(-1)(outputs)[0][0] < 0.95:
+            predict_id = 1
     predict_label = class_dict[predict_id]
     
     return predict_label

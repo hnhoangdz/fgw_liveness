@@ -16,7 +16,6 @@ def get_args():
     ap = argparse.ArgumentParser()
     ap.add_argument("-v", "--video", type=str,
                     help="path to input video file")
-
     ap.add_argument("-d", "--detector", type=str, default="dlib",
                     help="face detector module (dlib/opencv/mtcnn)")
 
@@ -39,6 +38,9 @@ def get_video(args):
         exit()
     return video
 
+# ====================== Bank Questions ========================
+
+
 if __name__ == '__main__':
     args = get_args()
     rules = make_rules(args["num_rules"])
@@ -58,6 +60,7 @@ if __name__ == '__main__':
     
     # parameters
     font = cv2.FONT_HERSHEY_SIMPLEX # font character
+    line_type = cv2.LINE_AA # line type of text
     fps = None # fps
     is_match = False # match between dcb & fb 
     iou_list = [] # store iou values of dcb & fb
@@ -66,6 +69,18 @@ if __name__ == '__main__':
     n_frames = 0 # number of frames
     challenge = 'fail' # pass or fail of each rule
     rule_ith = 0 # ith-rule
+    prev_frame_time = 0 # prev time of frame
+    curr_frame_time = 0 # curr time of frame
+    message = None # 
+    time_step = None
+    # bgr
+    colors = {
+        'red': (0, 0, 255), 
+        'blue': (255, 0, 0),
+        'green': (0, 255, 0),
+        'orange': (255, 128, 0),
+        'pink': (255, 153, 255)
+    }
     
     # init video & write
     video = get_video(args) # video object
@@ -78,11 +93,6 @@ if __name__ == '__main__':
     
     # default center box (dcb)
     center_box = default_center_box(frame_width, frame_height)
-    
-    # prev time & curr time of frame
-    prev_frame_time, curr_frame_time = 0, 0
-    message = None
-    time_step = None
     
     while True:
         # start time of frame 
@@ -110,7 +120,7 @@ if __name__ == '__main__':
             if len(rects) > 1:
                 del rects 
                 cv2.putText(frame, "WARNING: MUST HAVE 1 PERSON HERE!!!",
-                            (7, 140), font, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
+                            (7, 140), font, 0.5, colors['red'], 2, line_type)
             
             # only one face
             elif len(rects) == 1:
@@ -118,7 +128,7 @@ if __name__ == '__main__':
                 (x, y, w, h) = rects[0]
                 xmin, ymin, xmax, ymax = (x, y, x+w, y+h)
                 cv2.rectangle(frame, (xmin, ymin),
-                                (xmax, ymax), (0, 255, 255), 1)
+                                (xmax, ymax), colors['orange'], 1)
 
                 # IOU score
                 rects = [xmin, ymin, xmax, ymax]
@@ -132,7 +142,7 @@ if __name__ == '__main__':
                 if iou_score < args["threshold_match"] and ioa_score < 0.7:
                     del rects
                     cv2.putText(frame, "WARNING: FACE MUST BE IN CENTER",
-                                (7, 70), font, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
+                                (7, 70), font, 0.5, colors['red'], 2, line_type)
                 else:
                     face_box = (x, y, w, h)
                     is_match = True
@@ -141,7 +151,7 @@ if __name__ == '__main__':
                     (x, y, w, h) = [int(v) for v in face_box]
                     face_bbox = dlib.rectangle(x, y, x + w, y + h)
                     cv2.rectangle(frame, (x, y),
-                                (x + w, y + h), (0, 255, 0), 2)
+                                (x + w, y + h), colors['green'], 2)
                                         
                     if rule_ith == 3:
                         message = 'You did good'
@@ -157,16 +167,16 @@ if __name__ == '__main__':
                         if time_step is None:
                             require = convert_rule2require(rules[rule_ith])
                             cv2.putText(frame, require,
-                                        (7, 70), font, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
-                            # label = banks[rules[rule_ith]](frame, face_bbox)
-                            label = banks["eye_blink"](frame, face_bbox)
+                                        (7, 70), font, 0.5, colors['red'], 2, line_type)
+                            label = banks[rules[rule_ith]](frame, face_bbox)
+                            # label = banks["side_face_left"](frame, face_bbox)
                             challenge = solve_rule(rules[rule_ith], label)
                             
                             if challenge == 'pass':
                                 time_step = time.time()
                             
                         else:
-                            cv2.putText(frame, 'wait 3s', (7, 70), 1, 2, (0,255,0), 3)
+                            cv2.putText(frame, 'Wait 3s', (7, 70), 1, 2, colors['pink'], 3)
                             if time.time() - time_step > 3:
                                 print(11111111111)
                                 rule_ith += 1
