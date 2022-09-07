@@ -1,8 +1,15 @@
 import cv2
 import imageio
+import argparse
 
-video_path = '/home/hoangdinhhuy/Hoang/project_fgw/main_action/videos/test_system4.avi'
-gif_path = '/home/hoangdinhhuy/Hoang/project_fgw/main_action/gifs/test_system4.gif'
+ap = argparse.ArgumentParser()
+ap.add_argument("-v","--video_path", required=True, type=str)
+ap.add_argument("-g","--gif_path", required=True, type=str)
+args = vars(ap.parse_args())
+
+video_path = args["video_path"]
+gif_path = args["gif_path"]
+
 cap = cv2.VideoCapture(video_path)
 image_lst = []
 

@@ -49,7 +49,7 @@ class EyeBlinkDetection(object):
             print('ear: ', EAR)
             print('left ear: ', leftEar)
             print('right ear: ', rightEar)
-            if EAR < 0.15:
+            if EAR < 0.2:
                 is_blinked = True
                 
         if visualize:

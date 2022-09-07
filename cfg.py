@@ -9,3 +9,4 @@ eye_blink_model_cew_v3 = 'trained_models/best_model_80_0.00290_Adam_0.98.pth'
 
 smile_face_model_fer = 'trained_models/model_54_0.00131_AdamW_34_0.91.pth'
 smile_face_model_genki4k = 'trained_models/model_52_0.02012_AdamW_91_0.96.pth'
+
